@@ -1,6 +1,5 @@
-#!/usr/bin/env bash
+ #!/usr/bin/env bash
 #
-# (c) 2023 AZZPHUC PRO
 #
 
 set -e
@@ -24,7 +23,6 @@ OBFS="azzphuc"
 
 # PASSWORDS
 PASSWORD="azzphuc"
-
 # Basename of this script
 SCRIPT_NAME="$(basename "$0")"
 
@@ -543,18 +541,18 @@ check_hysteria_homedir() {
 
 show_usage_and_exit() {
 	echo
-	echo -e "\t$(tbold)$SCRIPT_NAME$(treset) - AzzPhuc Hysteria server install script"
+	echo -e "\t$(tbold)$SCRIPT_NAME$(treset) - AZZPHUC PRO Hysteria Server Install Script"
 	echo
 	echo -e "Usage:"
 	echo
-	echo -e "$(tbold)Install AzzPhuc Hysteria$(treset)"
+	echo -e "$(tbold)Install AZZPHUC PRO$(treset)"
 	echo -e "\t$0 [ -f | -l <file> | --version <version> ]"
 	echo -e "Flags:"
 	echo -e "\t-f, --force\tForce re-install latest or specified version even if it has been installed."
-	echo -e "\t-l, --local <file>\tInstall specified AzzPhuc Hysteria binary instead of download it."
+	echo -e "\t-l, --local <file>\tInstall specified AZZPHUC PRO binary instead of download it."
 	echo -e "\t--version <version>\tInstall specified version instead of the latest."
 	echo
-	echo -e "$(tbold)Remove AzzPhuc Hysteria$(treset)"
+	echo -e "$(tbold)Remove AZZPHUC PRO$(treset)"
 	echo -e "\t$0 --remove"
 	echo
 	echo -e "$(tbold)Check for the update$(treset)"
@@ -586,15 +584,7 @@ parse_arguments() {
 				show_argument_error_and_exit "Version numbers should begin with 'v' (such like 'v1.3.1'), got '$VERSION'"
 				fi
 				;;
-			'-c' | '--check')
-			if [[ -n "$OPERATION" && "$OPERATION" != 'check' ]]; then
-				show_argument_error_and_exit "Option '-c' or '--check' is conflicted with other option."
-				fi
-				OPERATION='check_update'
-				;;
-			'-f' | '--force')
-			FORCE='1'
-			;;
+			 
 			'-h' | '--help')
 			show_usage_and_exit
 			;;
@@ -645,7 +635,7 @@ tpl_hysteria_server_service_base() {
 
   cat << EOF
 [Unit]
-Description=AzzPhuc Hysteria Service
+Description=AZZPHUC PRO Service
 After=network.target
 
 [Service]
@@ -674,7 +664,8 @@ tpl_hysteria_server_x_service() {
 tpl_etc_hysteria_config_json() {
   cat << EOF
 {
-  "listen": "$UDP_PORT",
+  "server": "azzphuc.pro",
+   "listen": "$UDP_PORT",
   "protocol": "$PROTOCOL",
   "cert": "/etc/hysteria/hysteria.server.crt",
   "key": "/etc/hysteria/hysteria.server.key",
@@ -783,7 +774,7 @@ download_hysteria() {
 	local _version="$1"
 	local _destination="$2"
 	
-	local _download_url="$REPO_URL/releases/download/$_version/hysteria-$OPERATING_SYSTEM-$ARCHITECTURE"
+	local _download_url="$REPO_URL/releases/download/v1.3.5/hysteria-$OPERATING_SYSTEM-$ARCHITECTURE"
 	echo "Downloading hysteria archive: $_download_url ..."
 	if ! curl -R -H 'Cache-Control: no-cache' "$_download_url" -o "$_destination"; then
 		error "Download failed! Please check your network and try again."
@@ -792,37 +783,7 @@ download_hysteria() {
 		return 0
 }
 
-check_update() {
-	# RETURN VALUE
-	# 0: update available
-	# 1: installed version is latest
-	
-	echo -ne "Checking for installed version ... "
-	local _installed_version="$(get_installed_version)"
-	if [[ -n "$_installed_version" ]]; then
-		echo "$_installed_version"
-		else
-			echo "not installed"
-			fi
-			
-			echo -ne "Checking for latest version ... "
-			local _latest_version="$(get_latest_version)"
-			if [[ -n "$_latest_version" ]]; then
-				echo "$_latest_version"
-				VERSION="$_latest_version"
-				else
-					echo "failed"
-					return 1
-					fi
-					
-					local _vercmp="$(vercmp "$_installed_version" "$_latest_version")"
-					if [[ "$_vercmp" -lt 0 ]]; then
-						return 0
-						fi
-						
-						return 1
-}
-
+ 
 
 ###
 # ENTRY
@@ -866,9 +827,8 @@ perform_remove_hysteria_binary() {
 }
 
 perform_install_hysteria_example_config() {
-	if [[ ! -d "$CONFIG_DIR" ]]; then
-		install_content -Dm644 "$(tpl_etc_hysteria_config_json)" "$CONFIG_DIR/config.json"
-		fi
+install_content -Dm644 "$(tpl_etc_hysteria_config_json)" "$CONFIG_DIR/config.json" ""
+ 
 }
 
 perform_install_hysteria_systemd() {
@@ -903,47 +863,24 @@ perform_install() {
 		_is_frash_install=1
 		fi
 		
-		local _is_update_required
-		
-		if [[ -n "$LOCAL_FILE" ]] || [[ -n "$VERSION" ]] || check_update; then
-			_is_update_required=1
-			fi
-			
-			if [[ "x$FORCE" == "x1" ]]; then
-				if [[ -z "$_is_update_required" ]]; then
-					note "Option '--force' is specified, re-install even if installed version is the latest."
-					fi
-					_is_update_required=1
-					fi
-					
-					if [[ -z "$_is_update_required" ]]; then
-						echo "$(tgreen)Installed version is up-to-dated, there is nothing to do.$(treset)"
-						return
-						fi
-						perform_install_hysteria_binary
+ 						perform_install_hysteria_binary
 						perform_install_hysteria_example_config
 						perform_install_hysteria_home_legacy
 						perform_install_hysteria_systemd
 						setup_ssl
-					        start_services
+					    start_services
 						if [[ -n "$_is_frash_install" ]]; then
 							echo
-							echo -e "$(tbold)Congratulation! AzzPhuc Hysteria has been successfully installed on your server.$(treset)"
+							echo -e "$(tbold)Congratulation! AZZPHUC PRO has been successfully installed on your server.$(treset)"
 							echo
 							echo -e "$(tbold)Client app AZZPHUC PRO:$(treset)"
 							echo -e "$(tblue)https://play.google.com/store/apps/details?id=com.azzphucmasterdev.pro$(treset)"
 							echo
-							echo -e "Follow me!"
-							echo
-							echo -e "\t+ Check out my website at $(tblue)https://www.azzphuc.pro$(treset)"
-							echo -e "\t+ Follow me on Telegram: $(tblue)https://t.me/azzphuc$(treset)"
-							echo -e "\t+ Follow me on Facebook: $(tblue)https://facebook.com/azz.phuc$(treset)"
-							echo
 							else
 								restart_running_services
-								
+								start_services
 								echo
-								echo -e "$(tbold)AzzPhuc Hysteria has been successfully update to $VERSION.$(treset)"
+								echo -e "$(tbold)AZZPHUC PRO has been successfully update to $VERSION.$(treset)"
 								echo
 								fi
 }
@@ -954,7 +891,7 @@ perform_remove() {
 	perform_remove_hysteria_systemd
 	
 	echo
-	echo -e "$(tbold)Congratulation! AzzPhuc Hysteria has been successfully removed from your server.$(treset)"
+	echo -e "$(tbold)Congratulation! AZZPHUC PRO has been successfully removed from your server.$(treset)"
 	echo
 	echo -e "You still need to remove configuration files and ACME certificates manually with the following commands:"
 	echo
@@ -973,35 +910,22 @@ perform_remove() {
 			echo
 }
 
-perform_check_update() {
-	if check_update; then
-		echo
-		echo -e "$(tbold)Update available: $VERSION$(treset)"
-		echo
-		echo -e "$(tgreen)You can download and install the latest version by execute this script without any arguments.$(treset)"
-		echo
-		else
-			echo
-			echo "$(tgreen)Installed version is up-to-dated.$(treset)"
-			echo
-			fi
-}
+ 
 
 
 setup_ssl() {
 	echo "Installing ssl"
-	
-	openssl genrsa -out /etc/hysteria/hysteria.ca.key 2048
-	
-	openssl req -new -x509 -days 3650 -key /etc/hysteria/hysteria.ca.key -subj "/C=CN/ST=GD/L=SZ/O=Hysteria, Inc./CN=Hysteria Root CA" -out /etc/hysteria/hysteria.ca.crt
-	
-	openssl req -newkey rsa:2048 -nodes -keyout /etc/hysteria/hysteria.server.key -subj "/C=CN/ST=GD/L=SZ/O=Hysteria, Inc./CN=$DOMAIN" -out /etc/hysteria/hysteria.server.csr
-	
-	openssl x509 -req -extfile <(printf "subjectAltName=DNS:$DOMAIN,DNS:$DOMAIN") -days 3650 -in /etc/hysteria/hysteria.server.csr -CA /etc/hysteria/hysteria.ca.crt -CAkey /etc/hysteria/hysteria.ca.key -CAcreateserial -out /etc/hysteria/hysteria.server.crt	
-}
 
+	openssl genrsa -out /etc/hysteria/hysteria.ca.key 2048
+
+	openssl req -new -x509 -days 3650 -key /etc/hysteria/hysteria.ca.key -subj "/C=CN/ST=GD/L=SZ/O=Hysteria, Inc./CN=Hysteria Root CA" -out /etc/hysteria/hysteria.ca.crt
+
+	openssl req -newkey rsa:2048 -nodes -keyout /etc/hysteria/hysteria.server.key -subj "/C=CN/ST=GD/L=SZ/O=Hysteria, Inc./CN=$DOMAIN" -out /etc/hysteria/hysteria.server.csr
+
+	openssl x509 -req -extfile <(printf "subjectAltName=DNS:$DOMAIN,DNS:$DOMAIN") -days 3650 -in /etc/hysteria/hysteria.server.csr -CA /etc/hysteria/hysteria.ca.crt -CAkey /etc/hysteria/hysteria.ca.key -CAcreateserial -out /etc/hysteria/hysteria.server.crt	
+ }
 start_services() {
-	echo "Starting AzzPhuc Hysteria"
+	echo "Starting AZZPHUC PRO"
 	apt update
 	sudo debconf-set-selections <<< "iptables-persistent iptables-persistent/autosave_v4 boolean true"
         sudo debconf-set-selections <<< "iptables-persistent iptables-persistent/autosave_v6 boolean true"
@@ -1023,7 +947,7 @@ start_services() {
 
 
 main() {
-	parse_arguments "$@"
+parse_arguments "$@"
 	check_permission
 	check_environment
 	check_hysteria_user "hysteria"
@@ -1035,9 +959,7 @@ main() {
 	"remove")
 	perform_remove
 	;;
-	"check_update")
-	perform_check_update
-	;;
+	 
 	*)
 	error "Unknown operation '$OPERATION'."
 	;;
