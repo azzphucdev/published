@@ -895,6 +895,8 @@ perform_remove() {
 	echo
 	echo -e "You still need to remove configuration files and ACME certificates manually with the following commands:"
 	echo
+        echo -e "Username ( Obfs ) And Password Default Is: azzphuc"
+	echo
 	echo -e "\t$(tred)rm -rf "$CONFIG_DIR"$(treset)"
 	if [[ "x$HYSTERIA_USER" != "xroot" ]]; then
 		echo -e "\t$(tred)userdel -r "$HYSTERIA_USER"$(treset)"
